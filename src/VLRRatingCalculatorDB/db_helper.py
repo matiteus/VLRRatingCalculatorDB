@@ -1,7 +1,7 @@
 """High-level helper for engine, session, and CRUD operations."""
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session, sessionmaker
 
 from VLRRatingCalculatorDB.model.base import Base
 from VLRRatingCalculatorDB.model.map import MapModel
@@ -18,7 +18,7 @@ class DBHelper:
 
     def __init__(self, database_url: str) -> None:
         """Initialize the helper with a SQLAlchemy engine bound to ``database_url``."""
-        self.Session = None
+        self.session: Session | None = None
         self.engine = create_engine(database_url)
 
 
@@ -28,23 +28,26 @@ class DBHelper:
 
 
     def create_session(self) -> None:
-        """Creates the session."""
-        self.Session = sessionmaker(bind=self.engine)
+        """Create a new ``Session`` instance bound to the engine."""
+        self.session = sessionmaker(bind=self.engine)()
 
 
-    def check_if_match_exists(self, match_link:str) -> bool:
+    def check_if_match_exists(self, match_link: str) -> bool:
         """Return ``True`` if a match with the given link already exists."""
-        match_info = self.Session.query(
-            MatchModel,
-        ).filter(
-            MatchModel.match_link == match_link,
-        ).first()
-
+        stmt = (
+            select(
+                MatchModel.match_link
+            ).where((
+                MatchModel.match_link == match_link
+                )
+            )
+        )
+        match_info = self.session.execute(stmt).scalar_one_or_none()
         return bool(match_info)
 
 
 
-    def check_if_map_exists(self, match_id:int, map_id:int) -> bool:
+    def check_if_map_exists(self, match_id: int, map_id: int) -> bool:
         """Return ``True`` if a map with the given composite key already exists.
 
         Args:
@@ -52,17 +55,31 @@ class DBHelper:
             map_id: VLR-assigned id of the map within the match.
 
         """
-        map_info = self.Session.query(
-            MapModel,
-        ).filter(
-            MapModel.match_id == match_id,
-            MapModel.map_id == map_id,
-        ).first()
+        stmt = (
+            select(
+                MapModel.map_id,
+                MapModel.match_id
+            ).where(
+                MapModel.match_id == match_id,
+                MapModel.map_id == map_id,
+            )  
+        )
+        map_info = self.session.execute(stmt).scalar_one_or_none()
 
         return bool(map_info)
 
 
-    def add_match(self, match_dict:dict) -> dict:
+    def _check_if_match_exists(self, match_link: str) -> bool:
+        """Internal alias used by ``add_match`` to avoid colliding with the public API."""
+        return self.check_if_match_exists(match_link)
+
+
+    def _check_if_map_exists(self, match_id: int, map_id: int) -> bool:
+        """Internal alias used by ``add_map`` to avoid colliding with the public API."""
+        return self.check_if_map_exists(match_id, map_id)
+
+
+    def add_match(self, match_dict: dict) -> dict:
         """Insert a new match row, unless one with the same link already exists.
 
         Args:
@@ -77,13 +94,13 @@ class DBHelper:
         if self._check_if_match_exists(match_dict["match_link"]):
             return {"status": "Match already exists"}
         match = MatchModel(**match_dict)
-        self.Session.add(match)
-        self.Session.commit()
-        self.Session.refresh(match)
+        self.session.add(match)
+        self.session.commit()
+        self.session.refresh(match)
         return {"status": "Match added successfully", "match_id": match.id}
 
 
-    def add_map(self, map_dict:dict) ->bool:
+    def add_map(self, map_dict: dict) -> dict:
         """Insert a new map row, unless the (match_id, map_id) pair exists.
 
         Args:
@@ -97,26 +114,27 @@ class DBHelper:
         if self._check_if_map_exists(map_dict["match_id"], map_dict["map_id"]):
             return {"status": "Map already exists"}
         map_info = MapModel(**map_dict)
-        self.Session.add(map_info)
-        self.Session.commit()
-        self.Session.refresh(map_info)
-        return {"status": "Map added successfully", "map_id": map_info["id"]}
+        self.session.add(map_info)
+        self.session.commit()
+        self.session.refresh(map_info)
+        return {"status": "Map added successfully", "map_id": map_info.id}
 
-    def add_player(self, player_dict:dict) ->None:
-        """Insert a single player stats row and return the persisted model.
+
+    def add_player(self, player_dict: dict) -> None:
+        """Insert a single player stats row and persist it.
 
         Args:
             player_dict: Keyword arguments matching ``PlayerModel`` columns.
 
-        Returns:
-            The refreshed ``PlayerModel`` instance with its assigned ``id``.
-
         """
         player = PlayerModel(**player_dict)
-        self.Session.add(player)
-        self.Session.commit()
-        self.Session.refresh(player)
+        self.session.add(player)
+        self.session.commit()
+        self.session.refresh(player)
+
 
     def close_session(self) -> None:
-        self.Session.close()
+        """Close the active session, if one is open."""
+        if self.session is not None:
+            self.session.close()
 
