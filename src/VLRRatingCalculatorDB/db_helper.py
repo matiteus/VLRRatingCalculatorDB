@@ -106,5 +106,6 @@ class DBHelper:
         self.Session.commit()
         self.Session.refresh(player)
 
-
+    def close_session(self) -> None:
+        self.Session.close()
 
