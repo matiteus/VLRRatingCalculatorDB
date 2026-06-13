@@ -32,8 +32,19 @@ class DBHelper:
         self.Session = sessionmaker(bind=self.engine)
 
 
+    def check_if_match_exists(self, match_link:str) -> bool:
+        """Return ``True`` if a match with the given link already exists."""
+        match_info = self.Session.query(
+            MatchModel,
+        ).filter(
+            MatchModel.match_link == match_link,
+        ).first()
 
-    def _check_if_map_exists(self, match_id:int, map_id:int) -> bool:
+        return bool(match_info)
+
+
+
+    def check_if_map_exists(self, match_id:int, map_id:int) -> bool:
         """Return ``True`` if a map with the given composite key already exists.
 
         Args:
