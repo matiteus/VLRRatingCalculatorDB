@@ -36,9 +36,9 @@ class DBHelper:
         """Return ``True`` if a match with the given link already exists."""
         stmt = (
             select(
-                MatchModel.match_link
+                MatchModel.link
             ).where((
-                MatchModel.match_link == match_link
+                MatchModel.link == match_link
                 )
             )
         )
