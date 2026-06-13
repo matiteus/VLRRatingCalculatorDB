@@ -46,6 +46,16 @@ class DBHelper:
         return bool(match_info)
 
 
+    def get_match_id(self, match_link: str) -> int | None:
+        """Return the primary key of the match with the given link, or ``None``.
+
+        Use this to resolve a VLR match link to the internal ``val_matches.id``
+        that foreign keys (e.g. ``val_maps.match_id``) need to point at.
+        """
+        stmt = select(MatchModel.id).where(MatchModel.link == match_link)
+        return self.session.execute(stmt).scalar_one_or_none()
+
+
 
     def check_if_map_exists(self, match_id: int, map_id: int) -> bool:
         """Return ``True`` if a map with the given composite key already exists.
