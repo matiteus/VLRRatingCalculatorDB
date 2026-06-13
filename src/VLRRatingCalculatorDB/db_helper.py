@@ -79,16 +79,6 @@ class DBHelper:
         return bool(map_info)
 
 
-    def _check_if_match_exists(self, match_link: str) -> bool:
-        """Internal alias used by ``add_match`` to avoid colliding with the public API."""
-        return self.check_if_match_exists(match_link)
-
-
-    def _check_if_map_exists(self, match_id: int, map_id: int) -> bool:
-        """Internal alias used by ``add_map`` to avoid colliding with the public API."""
-        return self.check_if_map_exists(match_id, map_id)
-
-
     def add_match(self, match_dict: dict) -> dict:
         """Insert a new match row, unless one with the same link already exists.
 
@@ -101,7 +91,7 @@ class DBHelper:
             On insert: ``{"status": "Match added successfully", "match_id": <id>}``.
 
         """
-        if self._check_if_match_exists(match_dict["match_link"]):
+        if self.check_if_match_exists(match_dict["link"]):
             return {"status": "Match already exists"}
         match = MatchModel(**match_dict)
         self.session.add(match)
@@ -121,7 +111,7 @@ class DBHelper:
             On insert: ``{"status": "Map added successfully", "map_id": <id>}``.
 
         """
-        if self._check_if_map_exists(map_dict["match_id"], map_dict["map_id"]):
+        if self.check_if_map_exists(map_dict["match_id"], map_dict["map_id"]):
             return {"status": "Map already exists"}
         map_info = MapModel(**map_dict)
         self.session.add(map_info)
