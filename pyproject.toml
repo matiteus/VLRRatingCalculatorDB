@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "VLRRatingCalculatorDB"
+version = "0.1.0"
+description = "Database helper module for the VLR Scrapper"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Matizin" }]
+dependencies = [
+    "sqlalchemy>=2.0",
+    "pydantic>=2.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["VLRRatingCalculatorDB*"]
