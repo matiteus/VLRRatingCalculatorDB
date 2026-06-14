@@ -11,7 +11,8 @@ class MapModel(Base):
 
     __tablename__ = "val_maps"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    match_id: Mapped[int] = mapped_column(ForeignKey("val_matches.id"))
+    db_match_id: Mapped[int] = mapped_column(ForeignKey("val_matches.id"))
+    vlr_match_id: Mapped[int] = mapped_column(Integer)
     map_id: Mapped[int] = mapped_column(Integer)
     map_name: Mapped[str] = mapped_column(String)
     team_1: Mapped[str] = mapped_column(String)

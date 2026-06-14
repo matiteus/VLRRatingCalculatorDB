@@ -6,7 +6,8 @@ from pydantic import BaseModel
 class MapInput(BaseModel):
     """Payload accepted by the API when creating a new map row."""
 
-    match_id: int
+    vlr_match_id: int
+    db_match_id: int
     map_id: int
     map_name: str
     team_1: str
@@ -24,7 +25,8 @@ class MapDTO(BaseModel):
     """Full map representation returned to API consumers, including its id."""
 
     id: int
-    match_id: int
+    vlr_match_id: int
+    db_match_id: int
     map_id: int
     map_name: str
     team_1: str
