@@ -55,6 +55,13 @@ class DBHelper:
         stmt = select(MatchModel.id).where(MatchModel.link == match_link)
         return self.session.execute(stmt).scalar_one_or_none()
 
+    def get_map_id(self, match_id: int, map_id: int) -> int | None:
+        """Return the primary key of the map with the given composite key, or ``None``."""
+        stmt = select(MapModel.id).where(
+            MapModel.db_match_id == match_id,
+            MapModel.map_id == map_id,
+        )
+        return self.session.execute(stmt).scalar_one_or_none()
 
 
     def check_if_map_exists(self, match_id: int, map_id: int) -> bool:
