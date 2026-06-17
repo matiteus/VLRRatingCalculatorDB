@@ -26,7 +26,7 @@ class PlayerModel(Base):
     kd_diff: Mapped[int] = mapped_column(Integer)
     kast: Mapped[float] = mapped_column(Float)
     adr: Mapped[float] = mapped_column(Float)
-    hs: Mapped[float] = mapped_column(Float)
+    hs: Mapped[String] = mapped_column(String)
     fb: Mapped[int] = mapped_column(Integer)
     fd: Mapped[int] = mapped_column(Integer)
     fk_diff: Mapped[int] = mapped_column(Integer)
