@@ -75,9 +75,9 @@ class DBHelper:
         stmt = (
             select(
                 MapModel.map_id,
-                MapModel.match_id
+                MapModel.vlr_match_id
             ).where(
-                MapModel.match_id == match_id,
+                MapModel.vlr_match_id == match_id,
                 MapModel.map_id == map_id,
             )  
         )
