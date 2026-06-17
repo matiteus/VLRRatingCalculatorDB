@@ -24,7 +24,7 @@ class PlayerModel(Base):
     deaths: Mapped[int] = mapped_column(Integer)
     assists: Mapped[int] = mapped_column(Integer)
     kd_diff: Mapped[int] = mapped_column(Integer)
-    kast: Mapped[float] = mapped_column(Float)
+    kast: Mapped[str] = mapped_column(String)
     adr: Mapped[float] = mapped_column(Float)
     hs: Mapped[String] = mapped_column(String)
     fb: Mapped[int] = mapped_column(Integer)
