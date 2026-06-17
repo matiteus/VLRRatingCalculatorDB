@@ -58,7 +58,7 @@ class DBHelper:
     def get_map_id(self, match_id: int, map_id: int) -> int | None:
         """Return the primary key of the map with the given composite key, or ``None``."""
         stmt = select(MapModel.id).where(
-            MapModel.db_match_id == match_id,
+            MapModel.val_match_id == match_id,
             MapModel.map_id == map_id,
         )
         return self.session.execute(stmt).scalar_one_or_none()
@@ -118,7 +118,7 @@ class DBHelper:
             On insert: ``{"status": "Map added successfully", "map_id": <id>}``.
 
         """
-        if self.check_if_map_exists(map_dict["match_id"], map_dict["map_id"]):
+        if self.check_if_map_exists(map_dict["val_match_id"], map_dict["map_id"]):
             return {"status": "Map already exists"}
         map_info = MapModel(**map_dict)
         self.session.add(map_info)
