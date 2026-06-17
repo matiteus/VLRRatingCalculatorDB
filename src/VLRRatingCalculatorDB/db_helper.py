@@ -118,7 +118,7 @@ class DBHelper:
             On insert: ``{"status": "Map added successfully", "map_id": <id>}``.
 
         """
-        if self.check_if_map_exists(map_dict["val_match_id"], map_dict["map_id"]):
+        if self.check_if_map_exists(map_dict["vlr_match_id"], map_dict["map_id"]):
             return {"status": "Map already exists"}
         map_info = MapModel(**map_dict)
         self.session.add(map_info)
