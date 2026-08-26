@@ -7,8 +7,8 @@ class MapInput(BaseModel):
     """Payload accepted by the API when creating a new map row."""
 
     vlr_match_id: int
-    db_match_id: int
-    map_id: int
+    vlr_map_id: int
+    map_number: int
     map_name: str
     team_1: str
     team_2: str
@@ -20,14 +20,15 @@ class MapInput(BaseModel):
     team_1_t_rounds_won: int
     team_2_ct_rounds_won: int
     team_2_t_rounds_won: int
+    pick_team: str | None = None
 
 class MapDTO(BaseModel):
     """Full map representation returned to API consumers, including its id."""
 
     id: int
     vlr_match_id: int
-    db_match_id: int
-    map_id: int
+    vlr_map_id: int
+    map_number: int
     map_name: str
     team_1: str
     team_2: str
@@ -39,6 +40,7 @@ class MapDTO(BaseModel):
     team_1_t_rounds_won: int
     team_2_ct_rounds_won: int
     team_2_t_rounds_won: int
+    pick_team: str | None = None
 
 class MapOutput(BaseModel):
     """Wrapper for a list of :class:`MapDTO` responses."""
