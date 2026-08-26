@@ -1,8 +1,16 @@
-from src.VLRRatingCalculatorDB.model.match import MatchModel
+from VLRRatingCalculatorDB.dto.match_info import MatchlistResponse
+from VLRRatingCalculatorDB.model.match import MatchModel
+
 from sqlalchemy.orm import Session
 from sqlalchemy import  select
 
 class MatchRepository:
+
+
+    def get_all_matches(self, session: Session) -> list[MatchlistResponse]:
+        stmt = select(MatchModel.id, MatchModel.link)
+        result = session.execute(stmt).all()
+        return [MatchlistResponse(id=row[0], link=row[1]) for row in result]
 
 
     def check_if_match_exists(self,session:Session, match_link: str) -> bool:
@@ -18,7 +26,7 @@ class MatchRepository:
         match_info = session.execute(stmt).scalar_one_or_none()
         return bool(match_info)
 
-    def add_match(self, match_data: MatchModel, session: Session|None) ->dict:
+    def insert_match(self, match_data: MatchModel, session: Session|None) ->dict:
         """Insert a new match row, unless one with the same link already exists.
 
         Args:
