@@ -7,13 +7,23 @@ from VLRRatingCalculatorDB.model.base import Base
 
 
 class PlayerModel(Base):
-    """Model of the Player table."""
+    """Model of the Player table.
+
+    Per-map rows have ``vlr_match_id`` (FK to ``val_matches.vlr_match_id``)
+    and ``vlr_map_id`` (FK to ``val_maps.vlr_map_id``) both populated.
+
+    All-maps (series-total) rows have ``vlr_match_id`` populated and
+    ``vlr_map_id`` NULL.
+    """
 
     __tablename__ = "val_players"
-    id: Mapped[int] = mapped_column(Integer,primary_key=True, autoincrement=True)
-    db_match_id: Mapped[int] = mapped_column(ForeignKey("val_matches.id"))
-    vlr_match_id: Mapped[int] = mapped_column(Integer)
-    map_id:Mapped[int] = mapped_column(ForeignKey("val_maps.id"))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    vlr_match_id: Mapped[int] = mapped_column(
+        ForeignKey("val_matches.vlr_match_id"), nullable=False
+    )
+    vlr_map_id: Mapped[int | None] = mapped_column(
+        ForeignKey("val_maps.vlr_map_id"), nullable=True
+    )
     name: Mapped[str] = mapped_column(String)
     team: Mapped[str] = mapped_column(String)
     agent: Mapped[str] = mapped_column(String)
@@ -26,7 +36,7 @@ class PlayerModel(Base):
     kd_diff: Mapped[int] = mapped_column(Integer)
     kast: Mapped[str] = mapped_column(String)
     adr: Mapped[float] = mapped_column(Float)
-    hs: Mapped[String] = mapped_column(String)
+    hs: Mapped[str] = mapped_column(String)
     fb: Mapped[int] = mapped_column(Integer)
     fd: Mapped[int] = mapped_column(Integer)
     fk_diff: Mapped[int] = mapped_column(Integer)
