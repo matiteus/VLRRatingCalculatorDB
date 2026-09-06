@@ -43,7 +43,8 @@ class MatchRepository:
 
   
         if self.check_if_match_exists(session,getattr(match_data, "link")):
-            raise ValueError("Match already exists")
+            print(f"  Match already exists in database: {getattr(match_data, 'link')}")
+            return {"status": "Match already exists"}
         session.add(match_data)
         session.commit()
         session.refresh(match_data)
