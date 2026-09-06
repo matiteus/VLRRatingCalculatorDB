@@ -50,6 +50,36 @@ class DBHelper:
     def insert_players(self, players_data: list[PlayerInput]):
         return self.player_repository.insert_players(players_data, self.session)
 
+    def insert_match_bundle(
+        self,
+        match_data: dict,
+        maps_data: list[MapInput],
+        players_data: list[PlayerInput],
+    ):
+        """Insert one match and all dependent rows in one transaction."""
+        if self.session is None:
+            raise ValueError("Session is None. Please create a session first.")
+
+        try:
+            match = MatchModel(**match_data)
+            match_result = self.match_repository.insert_match(
+                match, self.session, commit=False
+            )
+            if match_result["status"] == "Match already exists":
+                return match_result
+
+            self.map_repository.insert_maps(
+                maps_data, self.session, commit=False
+            )
+            self.player_repository.insert_players(
+                players_data, self.session, commit=False
+            )
+            self.session.commit()
+            return match_result
+        except Exception:
+            self.session.rollback()
+            raise
+
 
     def check_if_match_exists(self, match_link: str) -> bool:
         """Return ``True`` if a match with the given link already exists."""

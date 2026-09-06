@@ -8,7 +8,7 @@ from VLRRatingCalculatorDB.model.player import PlayerModel
 class PlayerRepository:
 
 
-    def insert_players(self, players_data: list[PlayerInput], session: Session|None) -> list[int]:
+    def insert_players(self, players_data: list[PlayerInput], session: Session|None, commit: bool = True) -> list[int]:
         """Insert a list of new player rows.
 
         Args:
@@ -25,7 +25,10 @@ class PlayerRepository:
 
         player_models = [PlayerModel(**player_data) for player_data in players_data]
         session.add_all(player_models)
-        session.commit()
+        if commit:
+            session.commit()
+        else:
+            session.flush()
         for p in player_models:
             session.refresh(p)
 

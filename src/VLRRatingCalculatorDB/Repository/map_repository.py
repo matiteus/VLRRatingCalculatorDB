@@ -7,7 +7,7 @@ from sqlalchemy import  select
 class MapRepository:
 
 
-    def insert_maps(self, maps_data: list[MapInput], session: Session|None) -> dict[int, int]:
+    def insert_maps(self, maps_data: list[MapInput], session: Session|None, commit: bool = True) -> dict[int, int]:
         """Insert a list of new map rows.
 
         Args:
@@ -25,7 +25,10 @@ class MapRepository:
 
         map_models = [MapModel(**map_data) for map_data in maps_data]
         session.add_all(map_models)
-        session.commit()
+        if commit:
+            session.commit()
+        else:
+            session.flush()
         for m in map_models:
             session.refresh(m)
 

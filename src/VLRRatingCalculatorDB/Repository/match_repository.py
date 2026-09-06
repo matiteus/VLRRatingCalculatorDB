@@ -26,7 +26,7 @@ class MatchRepository:
         match_info = session.execute(stmt).scalar_one_or_none()
         return bool(match_info)
 
-    def insert_match(self, match_data: MatchModel, session: Session|None) ->dict:
+    def insert_match(self, match_data: MatchModel, session: Session|None, commit: bool = True) ->dict:
         """Insert a new match row, unless one with the same link already exists.
 
         Args:
@@ -46,7 +46,10 @@ class MatchRepository:
             print(f"  Match already exists in database: {getattr(match_data, 'link')}")
             return {"status": "Match already exists"}
         session.add(match_data)
-        session.commit()
+        if commit:
+            session.commit()
+        else:
+            session.flush()
         session.refresh(match_data)
         
         return {"status": "Match added successfully", "match_id": match_data.id}
