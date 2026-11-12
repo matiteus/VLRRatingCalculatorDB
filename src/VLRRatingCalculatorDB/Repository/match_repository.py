@@ -1,91 +1,73 @@
+import datetime
+from typing import Any
+
+from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as postgresql_insert
+from sqlalchemy.orm import Session
+
 from VLRRatingCalculatorDB.dto.match_info import MatchlistResponse
 from VLRRatingCalculatorDB.model.match import MatchModel
 
-from sqlalchemy.orm import Session
-from sqlalchemy import  select
-
 class MatchRepository:
 
+    def select_by_date_range(
+        self,
+        session: Session,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
+    ) -> list[dict[str, Any]]:
+        statement = (
+            select(
+                MatchModel.vlr_match_id,
+                MatchModel.match_date,
+                MatchModel.has_issue,
+                MatchModel.glicko_processed,
+                MatchModel.glicko_error,
+            )
+            .where(
+                MatchModel.match_date >= start_date,
+                MatchModel.match_date < end_date,
+            )
+            .order_by(MatchModel.match_date, MatchModel.vlr_match_id)
+        )
+        return [dict(row) for row in session.execute(statement).mappings()]
 
     def get_all_matches(self, session: Session) -> list[MatchlistResponse]:
         stmt = select(MatchModel.id, MatchModel.link)
         result = session.execute(stmt).all()
         return [MatchlistResponse(id=row[0], link=row[1]) for row in result]
 
+    def get_all_match_links(self, session: Session) -> set[str]:
+        """Every stored match link; cheaper than ``get_all_matches``."""
+        return set(session.scalars(select(MatchModel.link)))
 
-    def check_if_match_exists(self,session:Session, match_link: str) -> bool:
+    def check_if_match_exists(self, session: Session, match_link: str) -> bool:
         """Return ``True`` if a match with the given link already exists."""
-        stmt = (
-            select(
-                MatchModel.link
-            ).where((
-                MatchModel.link == match_link
-                )
-            )
-        )
-        match_info = session.execute(stmt).scalar_one_or_none()
-        return bool(match_info)
+        stmt = select(MatchModel.id).where(MatchModel.link == match_link).limit(1)
+        return session.scalar(stmt) is not None
 
-    def insert_match(self, match_data: MatchModel, session: Session|None, commit: bool = True) ->dict:
-        """Insert a new match row, unless one with the same link already exists.
+    def insert_match(self, match_data: dict, session: Session | None, commit: bool = True) -> dict:
+        """Insert a new match row unless its ``vlr_match_id`` is already stored.
 
-        Args:
-            match_data: Keyword arguments matching ``MatchModel`` columns
-                (e.g. ``{"link": "..."}``).
+        One round trip: ``INSERT ... ON CONFLICT DO NOTHING RETURNING id``,
+        instead of a separate existence check followed by an insert.
 
         Returns:
             A status dict. On duplicate: ``{"status": "Match already exists"}``.
             On insert: ``{"status": "Match added successfully", "match_id": <id>}``.
-
         """
         if session is None:
             raise ValueError("Session is None. Please provide a valid session.")
 
-  
-        if self.check_if_match_exists(session,getattr(match_data, "link")):
-            print(f"  Match already exists in database: {getattr(match_data, 'link')}")
+        statement = (
+            postgresql_insert(MatchModel)
+            .values(**match_data)
+            .on_conflict_do_nothing(index_elements=[MatchModel.vlr_match_id])
+            .returning(MatchModel.id)
+        )
+        match_id = session.scalar(statement)
+        if match_id is None:
             return {"status": "Match already exists"}
-        session.add(match_data)
         if commit:
             session.commit()
-        else:
-            session.flush()
-        session.refresh(match_data)
-        
-        return {"status": "Match added successfully", "match_id": match_data.id}
-    
-
-
-
-    # def fetch_repeated_links_in_list(self, match_link: list, session: Session) -> bool:
-    #     """Return ``True`` if a match with the given link already exists."""
-    #     stmt = (
-    #         select(
-    #             MatchModel.link
-    #         ).where((
-    #             MatchModel.link.isin_(match_link)
-    #             )
-    #         )
-    #     )
-    #     match_info = session.execute(stmt)
-        
-    #     return match_info
-    
-
-    # def fetch_match(self, match_link: str, session: Session) -> MatchModel:
-    #     stmt = (
-    #         select(
-    #             MatchModel.id
-    #         ).where(
-    #             MatchModel.link == match_link
-    #         )
-    #     )
-
-    #     match_id = session.execute(stmt)
-    #     if len(match_id) == 0:
-    #         raise ValueError("No match found with the given link")
-    #     if len(match_id) > 1:
-    #         raise ValueError("Multiple matches found with the same link")
-
-    #     return match_id
-    
+        return {"status": "Match added successfully", "match_id": match_id}

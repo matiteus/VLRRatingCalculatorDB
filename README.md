@@ -16,6 +16,7 @@ scraped Valorant match, map, and player statistics.
   exposes idempotent add operations for matches, maps, and player stats.
 - Idempotent inserts: re-adding a match (by `link`) or a map (by
   `vlr_match_id` + `map_id`) returns `"… already exists"` instead of raising.
+- An `agents` table stores each agent name and its broad role.
 
 ---
 

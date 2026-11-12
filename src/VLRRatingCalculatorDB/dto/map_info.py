@@ -14,13 +14,14 @@ class MapInput(BaseModel):
     team_2: str
     team_1_score: int
     team_2_score: int
-    map_winner: str
+    map_winner: str | None = None
     total_rounds: int
     team_1_ct_rounds_won: int
     team_1_t_rounds_won: int
     team_2_ct_rounds_won: int
     team_2_t_rounds_won: int
     pick_team: str | None = None
+    duration_seconds: int | None = None
 
 class MapDTO(BaseModel):
     """Full map representation returned to API consumers, including its id."""
@@ -34,13 +35,14 @@ class MapDTO(BaseModel):
     team_2: str
     team_1_score: int
     team_2_score: int
-    map_winner: str
+    map_winner: str | None = None
     total_rounds: int
     team_1_ct_rounds_won: int
     team_1_t_rounds_won: int
     team_2_ct_rounds_won: int
     team_2_t_rounds_won: int
     pick_team: str | None = None
+    duration_seconds: int | None = None
 
 class MapOutput(BaseModel):
     """Wrapper for a list of :class:`MapDTO` responses."""

@@ -17,8 +17,9 @@ class MapModel(Base):
 
     __tablename__ = "val_maps"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    # Postgres doesn't index foreign keys; Glicko loads maps per match.
     vlr_match_id: Mapped[int] = mapped_column(
-        ForeignKey("val_matches.vlr_match_id"), nullable=False
+        ForeignKey("val_matches.vlr_match_id"), nullable=False, index=True
     )
     vlr_map_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     map_number: Mapped[int] = mapped_column(Integer)
@@ -34,6 +35,7 @@ class MapModel(Base):
     team_2_ct_rounds_won: Mapped[int] = mapped_column(Integer)
     team_2_t_rounds_won: Mapped[int] = mapped_column(Integer)
     pick_team: Mapped[str | None] = mapped_column(String, nullable=True)
+    duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 

@@ -10,20 +10,23 @@ class PlayerInput(BaseModel):
     vlr_map_id: int | None = None
     name: str
     team: str
+    player_id: int | None = None
+    team_id: int | None = None
+    country: str | None = None
     agent: str
     side: str
-    rating: float
-    acs: int
-    kills: int
-    deaths: int
-    assists: int
-    kd_diff: int
-    kast: str
-    adr: float
-    hs: str
-    fb: int
-    fd: int
-    fk_diff: int
+    rating: float | None = None
+    acs: int | None = None
+    kills: int | None = None
+    deaths: int | None = None
+    assists: int | None = None
+    kd_diff: int | None = None
+    kast: str | None = None
+    adr: float | None = None
+    hs: str | None = None
+    fb: int | None = None
+    fd: int | None = None
+    fk_diff: int | None = None
 
 
 class PlayerDTO(BaseModel):
@@ -34,20 +37,23 @@ class PlayerDTO(BaseModel):
     vlr_map_id: int | None = None
     name: str
     team: str
+    player_id: int | None = None
+    team_id: int | None = None
+    country: str | None = None
     agent: str
     side: str
-    rating: float
-    acs: int
-    kills: int
-    deaths: int
-    assists: int
-    kd_diff: int
-    kast: str
-    adr: float
-    hs: str
-    fb: int
-    fd: int
-    fk_diff: int
+    rating: float | None = None
+    acs: int | None = None
+    kills: int | None = None
+    deaths: int | None = None
+    assists: int | None = None
+    kd_diff: int | None = None
+    kast: str | None = None
+    adr: float | None = None
+    hs: str | None = None
+    fb: int | None = None
+    fd: int | None = None
+    fk_diff: int | None = None
 
 
 class PlayerOutput(BaseModel):
